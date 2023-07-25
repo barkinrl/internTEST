@@ -8,3 +8,12 @@ engine = create_engine(DATABASE_URL)
 Base = declarative_base()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 session = SessionLocal()
+
+
+#Dependency to get the database session
+def get_db():
+    try:
+        db = SessionLocal()
+        yield db
+    finally:
+        db.close()
