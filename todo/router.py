@@ -9,7 +9,7 @@ router = FastAPI(debug=True)
 
 
 # Endpoint to create a new book
-@router.post("/books", response_model=BookResponse)
+@router.post("/books", response_model=IdResponse)
 async def create_book(book: BookCreate):
     new_book = add_new_book(book)
     return new_book
@@ -38,7 +38,7 @@ async def find_book_by_id(book_id: int):
 
 
 # Endpoint to update a book by ID
-@router.put("/books/{book_id}", response_model=BookResponse)
+@router.put("/books/{book_id}", response_model=IdResponse)
 async def put_new_book(book_id: int, book: BookCreate):
     updated_book = update_book(book_id, name=book.name, author=book.author, publisher=book.publisher, price=book.price)
     if updated_book is None:

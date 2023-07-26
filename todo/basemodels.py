@@ -1,11 +1,11 @@
 from pydantic import BaseModel
-
+from typing import Optional
 
 class BookResponse(BaseModel):
     id: int
     name: str
-    publisher: str 
     author: str
+    publisher: str 
     price: float
     
 class BookCreate(BaseModel):
@@ -17,3 +17,4 @@ class BookCreate(BaseModel):
 
 class IdResponse(BaseModel):
     id:int
+    message: Optional[str] = "Operation completed successfully."
