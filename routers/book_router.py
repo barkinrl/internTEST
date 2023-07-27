@@ -3,13 +3,12 @@ from typing import List
 from database.queries import add_new_book, get_all_books,get_book_by_id, update_book, delete_book_by_id
 from api_models.basemodels import BookCreate, BookResponse, IdResponse
 
-import sys
-sys.path.append('/home/barkin/Desktop/staj2/postgres_db')
+
 
 router = FastAPI(debug=True)
 
 
-# Endpoint to create a new book
+
 @router.post("/books", response_model=IdResponse)
 async def create_book(book: BookCreate):
     """
@@ -146,9 +145,8 @@ async def delete_book(book_id: int):
         if book is None:
             raise HTTPException(status_code=404, detail="Book not found")
         
-        if book.id == book_id:
-            delete_book_by_id(book_id)
-            return IdResponse(id=book_id)
+        delete_book_by_id(book_id)
+        return IdResponse(id=book_id)
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error deleting book")
 
