@@ -1,5 +1,5 @@
-from schemas import BookMain
-from dbconn import session
+from database.schemas import BookMain
+from database.dbconn import session
 
 import sys
 print(sys.path)
