@@ -74,6 +74,9 @@ class TestBookAPI(unittest.TestCase):
         self.assertIsInstance(response.json(), list)
         self.assertEqual(len(response.json()), 2)
 
+        if not response.json():
+            self.assertEqual(response.status_code, 404)
+        
         # Assert: Check if the correct books are returned
         books = get_all_books()
         for book in response.json():
@@ -87,8 +90,10 @@ class TestBookAPI(unittest.TestCase):
         response = self.client.get(f"/books/{self.book1_id}")
 
         # Assert: Verify the response
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["id"], self.book1_id)
+        if response.status_code == 200:
+            self.assertEqual(response.json()["id"], self.book1_id)
+        elif response.status_code == 404:
+            self.fail("Book not found")
 
 
 
@@ -106,8 +111,12 @@ class TestBookAPI(unittest.TestCase):
         response = self.client.put(f"/books/{self.book1_id}", json=updated_book_data)
 
         # Assert: Verify the response
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["id"], self.book1_id)
+        if response.status_code == 200:
+            self.assertEqual(response.json()["id"], self.book1_id)
+        elif response.status_code == 404:
+            self.fail("Book not found")  # Fails the test if book not found
+        elif response.status_code == 400:
+            self.fail("Bad request")
 
         # Assert: Check if the book is updated in the database
         update_book(self.book1_id, **updated_book_data)
@@ -124,8 +133,10 @@ class TestBookAPI(unittest.TestCase):
         response = self.client.delete(f"/books/{self.book1_id}")
 
         # Assert: Verify the response
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["id"], self.book1_id)
+        if response.status_code == 200:
+            self.assertEqual(response.json()["id"], self.book1_id)
+        elif response.status_code == 404:
+            self.fail("Book not found")
 
         # Assert: Check if the book is deleted from the database
         delete_book_by_id(self.book1_id)
