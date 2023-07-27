@@ -1,0 +1,242 @@
+openapi: 3.0.3
+info:
+  title: Intern API
+  description: Intern Demo API for Galaksiya
+  version: 1.0.0
+
+paths:
+  /books:
+    get:
+      summary: Retrieve all books
+      description: Returns a list of all books
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of books to retrieve
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: offset
+          in: query
+          description: Number of books to skip
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+        - name: name
+          in: query
+          description: Filter books by name
+          required: false
+          schema:
+            type: string
+        - name: author
+          in: query
+          description: Filter books by author
+          required: false
+          schema:
+            type: string
+        - name: publisher
+          in: query
+          description: Filter books by publisher
+          required: false
+          schema:
+            type: string
+        - name: price_min
+          in: query
+          description: Filter books by minimum price
+          required: false
+          schema:
+            type: integer
+        - name: price_max
+          in: query
+          description: Filter books by maximum price
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+              examples:
+                example1:
+                  summary: Example Response
+                  value:
+                    - id: 1
+                      name: "Book 1"
+                      author: "Author 1"
+                      publisher: "Publisher 1"
+                      price: 10
+                    - id: 2
+                      name: "Book 2"
+                      author: "Author 2"
+                      publisher: "Publisher 2"
+                      price: 20
+                example2:
+                  summary: Another Example Response
+                  value:
+                    - id: 3
+                      name: "Book 3"
+                      author: "Author 3"
+                      publisher: "Publisher 3"
+                      price: 30
+        '400':
+          description: Invalid request
+        '404':
+          description: Books not found
+    post:
+      summary: Add a new book
+      description: Creates a new book entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+            examples:
+              example1:
+                summary: Example Request
+                value:
+                  name: "New Book"
+                  author: "New Author"
+                  publisher: "New Publisher"
+                  price: 30
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+              examples:
+                example1:
+                  summary: Example Response
+                  value:
+                    id: 3
+
+  /books/{id}:
+    get:
+      summary: Retrieve a book by ID
+      description: Returns a single book based on the provided ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of the book to retrieve
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+              examples:
+                example1:
+                  summary: Example Response
+                  value:
+                    id: 1
+                    name: "Book 1"
+                    author: "Author 1"
+                    publisher: "Publisher 1"
+                    price: 10
+        '404':
+          description: Book not found
+    put:
+      summary: Update a book by ID
+      description: Updates an existing book based on the provided ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+            examples:
+              example1:
+                summary: Example Request
+                value:
+                  name: "Updated Book"
+                  author: "Updated Author"
+                  publisher: "Updated Publisher"
+                  price: 40
+      parameters:
+        - name: id
+          in: path
+          description: ID of the book to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+              examples:
+                example1:
+                  summary: Example Response
+                  value:
+                    id: 1
+        '404':
+          description: Book not found
+    delete:
+      summary: Delete a book by ID
+      description: Deletes a book based on the provided ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of the book to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Book deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+              examples:
+                example1:
+                  summary: Example Response
+                  value:
+                    id: 4
+        '404':
+          description: Book not found
+        '400':
+          description: Invalid request
+
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        author:
+          type: string
+        publisher:
+          type: string
+        price:
+          type: integer
+      required:
+        - id
+        - name
+        - author
+        - publisher
+        - price
