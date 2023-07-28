@@ -9,4 +9,3 @@ Base = declarative_base()
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 session = Session()
 
-
