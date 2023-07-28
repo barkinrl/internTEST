@@ -30,12 +30,33 @@ class TestBookAPI(unittest.TestCase):
 
     # Teardown Phase: Clean up the test database
     def tearDown(self):
-        #Base.metadata.drop_all(bind=engine)
         session.query(BookMain).delete()
         session.commit()
         session.close()
 
 
+
+    def test_get_non_existing_book(self):
+        # Execute
+        response = self.client.get(f"/books/12357")
+
+        # Assert
+        self.assertEqual(response.status_code, 500)
+
+
+    def test_bad_request(self):
+        # Setup
+        invalid_book_data = {
+            "author": "Test Author",
+            "publisher": "Test Publisher",
+            "price": 9.99
+        }
+
+        # Execute
+        response = self.client.post("/books", json=invalid_book_data)
+
+        # Assert
+        self.assertEqual(response.status_code, 422)
 
     
     def test_create_book(self):
@@ -94,8 +115,6 @@ class TestBookAPI(unittest.TestCase):
         # Assert
         if response.status_code == 200:
             self.assertEqual(response.json()["id"], self.book1_id)
-        elif response.status_code == 404:
-            self.fail("Book not found")
 
 
 
@@ -115,10 +134,6 @@ class TestBookAPI(unittest.TestCase):
         # Assert
         if response.status_code == 200:
             self.assertEqual(response.json()["id"], self.book1_id)
-        elif response.status_code == 404:
-            self.fail("Book not found")  
-        elif response.status_code == 400:
-            self.fail("Bad request")
 
         # Assert
         update_book(self.book1_id, **updated_book_data)
@@ -137,8 +152,7 @@ class TestBookAPI(unittest.TestCase):
         # Assert
         if response.status_code == 200:
             self.assertEqual(response.json()["id"], self.book1_id)
-        elif response.status_code == 404:
-            self.fail("Book not found")
+
 
         # Assert
         delete_book_by_id(self.book1_id)

@@ -120,6 +120,8 @@ paths:
                   summary: Example Response
                   value:
                     id: 3
+        '422':
+          description: Invalid data provided
 
   /books/{id}:
     get:

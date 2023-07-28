@@ -25,7 +25,7 @@ async def create_book(book: BookCreate):
         new_book = add_new_book(book)
         return new_book
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Error creating book")
+        raise HTTPException(status_code=422, detail="Error creating book")
 
 
 
