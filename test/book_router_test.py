@@ -1,9 +1,12 @@
 import unittest
 from fastapi.testclient import TestClient
 from routers.book_router import router
-from database.dbconn import Base, engine, session
+from database.dbconn import Base, engine
 from database.schemas import BookMain
 from database.queries import add_new_book, get_all_books, get_book_by_id, update_book, delete_book_by_id
+from sqlalchemy.orm import sessionmaker, Session
+Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 
 client = TestClient(router)
 
@@ -15,7 +18,7 @@ class TestBookAPI(unittest.TestCase):
         Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)
 
-        self.session = session()
+        self.session = Session()
         self.client = client
 
         # Create some sample books for testing
