@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../staj2')
 from fastapi import FastAPI, HTTPException
 from typing import List
 from database.queries import add_new_book, get_all_books,get_book_by_id, update_book, delete_book_by_id
@@ -9,7 +11,7 @@ router = FastAPI(debug=True)
 
 
 
-@router.post("/books", response_model=IdResponse)
+@router.post("/books", response_model=BookResponse)
 async def create_book(book: BookCreate):
     """
     This endpoint creates a new book based on the provided data in the request body
@@ -59,7 +61,10 @@ async def find_books(
         books = get_all_books(limit, offset, name, author, publisher, price_min, price_max)
         return books
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Error retrieving books")
+        if e.args[0] != 500:
+            raise HTTPException(status_code=422, detail="Error retrieving books")
+        else:
+            raise HTTPException(status_code=500, detail="Internal server error")
 
 
 
@@ -77,6 +82,7 @@ async def find_book_by_id(book_id: int):
 
     Raises:
         HTTPException(404): If no book is found with the given ID
+        HTTPException(500): If there's an internal server error
     """
     try:
         book = get_book_by_id(book_id)  
@@ -84,13 +90,17 @@ async def find_book_by_id(book_id: int):
             raise HTTPException(status_code=404, detail="Book not found")
         return book
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Error retrieving book")
+        if "tuple index out of range" in str(e):
+            raise HTTPException(status_code=500, detail="Internal server error")
+        else:
+            raise HTTPException(status_code=404, detail="Book not found")
+            
 
 
 
 
 
-@router.put("/books/{book_id}", response_model=BookResponse)
+@router.put("/books/{book_id}", response_model=IdResponse)
 async def update_new_book(book_id: int, book: BookCreate):
     """
     This endpoint updates an existing book's data based on the provided ID and request body
@@ -100,7 +110,7 @@ async def update_new_book(book_id: int, book: BookCreate):
         book: BookCreate - The request body model containing the updated book details
 
     Returns:
-        BookResponse: The updated book data
+        IdResponse: The updated book ID
 
     Raises:
         HTTPException(404): If no book is found with the given ID
@@ -119,7 +129,11 @@ async def update_new_book(book_id: int, book: BookCreate):
         )
         return updated_book
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Error updating book")
+        if e.args[0] != 500:
+            raise HTTPException(status_code=422, detail="Error updating book")
+        else:
+            raise HTTPException(status_code=500, detail="Internal server error")
+
 
 
 
@@ -148,5 +162,9 @@ async def delete_book(book_id: int):
         delete_book_by_id(book_id)
         return IdResponse(id=book_id)
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Error deleting book")
+        if e.args[0] != 500:
+            raise HTTPException(status_code=422, detail="Error deleting book")
+        else:
+            raise HTTPException(status_code=500, detail="Internal server error")
+
 

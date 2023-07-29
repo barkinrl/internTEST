@@ -122,6 +122,8 @@ paths:
                     id: 3
         '422':
           description: Invalid data provided
+        '500':
+          description: Server error
 
   /books/{id}:
     get:

@@ -1,8 +1,9 @@
+import sys
+sys.path.append("../staj2")
 from database.schemas import BookMain
 from database.dbconn import session
 
-import sys
-print(sys.path)
+
 
 
 # Insert a new book record

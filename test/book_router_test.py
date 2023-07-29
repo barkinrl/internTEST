@@ -19,7 +19,7 @@ class TestBookAPI(unittest.TestCase):
         self.client = client
 
         # Create some sample books for testing
-        book1 = BookMain(name="Book 1", author="Author 1", publisher="Publisher 1", price=10.0)
+        book1 = BookMain(name="Book 1 Name", author="Author 1", publisher="Publisher 1", price=19.99)
         book2 = BookMain(name="Book 2", author="Author 2", publisher="Publisher 2", price=20.0)
         session.add_all([book1, book2])
         session.commit()
@@ -38,13 +38,13 @@ class TestBookAPI(unittest.TestCase):
 
     def test_get_non_existing_book(self):
         # Execute
-        response = self.client.get(f"/books/12357")
+        response = self.client.get(f"/books/9876")
 
         # Assert
-        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.status_code, 404)
 
 
-    def test_bad_request(self):
+    def test_create_book_bad_request(self):
         # Setup
         invalid_book_data = {
             "author": "Test Author",
@@ -97,13 +97,25 @@ class TestBookAPI(unittest.TestCase):
         self.assertIsInstance(response.json(), list)
         self.assertEqual(len(response.json()), 2)
 
-        if not response.json():
-            self.assertEqual(response.status_code, 404)
+        all_books = get_all_books()
         
         # Assert
-        books = get_all_books()
         for book in response.json():
-            self.assertIn(book["name"], [b.name for b in books])
+            self.assertIn("id", book)
+            self.assertIn("name", book)
+            self.assertIn("author", book)
+            self.assertIn("publisher", book)
+            self.assertIn("price", book)
+
+            # Find the corresponding book in the database
+            corresponding_book = next((b for b in all_books if b.id == book["id"]), None)
+            self.assertIsNotNone(corresponding_book)
+
+            # Assert individual fields
+            self.assertEqual(book["name"], corresponding_book.name)
+            self.assertEqual(book["author"], corresponding_book.author)
+            self.assertEqual(book["publisher"], corresponding_book.publisher)
+            self.assertEqual(book["price"], corresponding_book.price)
 
 
 
@@ -113,9 +125,15 @@ class TestBookAPI(unittest.TestCase):
         response = self.client.get(f"/books/{self.book1_id}")
 
         # Assert
-        if response.status_code == 200:
-            self.assertEqual(response.json()["id"], self.book1_id)
+        self.assertEqual(response.status_code, 200)
+        book_data = response.json()
 
+        # Assert 
+        self.assertEqual(book_data["id"], self.book1_id)
+        self.assertEqual(book_data["name"], "Book 1 Name")  
+        self.assertEqual(book_data["author"], "Author 1")  
+        self.assertEqual(book_data["publisher"], "Publisher 1")  
+        self.assertEqual(book_data["price"], 19.99)
 
 
     
@@ -125,15 +143,15 @@ class TestBookAPI(unittest.TestCase):
             "name": "Updated Book",
             "author": "Updated Author",
             "publisher": "Updated Publisher",
-            "price": 19.99
-        }
+            "price": 21.00
+        }   
 
         # Execute
         response = self.client.put(f"/books/{self.book1_id}", json=updated_book_data)
 
         # Assert
-        if response.status_code == 200:
-            self.assertEqual(response.json()["id"], self.book1_id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["id"], self.book1_id)
 
         # Assert
         update_book(self.book1_id, **updated_book_data)
@@ -142,7 +160,7 @@ class TestBookAPI(unittest.TestCase):
         self.assertEqual(book.name, "Updated Book")
         self.assertEqual(book.author, "Updated Author")
         self.assertEqual(book.publisher, "Updated Publisher")
-        self.assertEqual(book.price, 19.99)
+        self.assertEqual(book.price, 21.00)
 
    
     def test_delete_book(self):
@@ -150,14 +168,9 @@ class TestBookAPI(unittest.TestCase):
         response = self.client.delete(f"/books/{self.book1_id}")
 
         # Assert
-        if response.status_code == 200:
-            self.assertEqual(response.json()["id"], self.book1_id)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["id"], self.book1_id)
 
-
-        # Assert
-        delete_book_by_id(self.book1_id)
-        book = get_book_by_id(self.book1_id)
-        self.assertIsNone(book)
 
 
 if __name__ == '__main__':

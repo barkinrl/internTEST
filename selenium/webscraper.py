@@ -1,8 +1,10 @@
+import sys
+sys.path.append("../staj2")
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from routers.book_router import add_new_book
+from routers.book_router import create_book
 from utils.const import const
 
 
@@ -31,7 +33,7 @@ while not isNextDisabled:
             (By.CSS_SELECTOR, "#list-slide1003")))
         
         elem_list = driver.find_element(
-            By.CSS_SELECTOR, "#list-slide1003")
+            By.CSS_SELECTOR, "#list-slide1003") 
 
         items = elem_list.find_elements(
             By.CLASS_NAME, "productItem")
@@ -40,7 +42,7 @@ while not isNextDisabled:
             bname = item.find_element(By.CLASS_NAME,"text-description").text
             bpublisher = "No publisher found"
             bauthor = "No author found"
-            bprice = "No price found"
+            bprice = "-1.0"
             try:
                 bpublisher = item.find_element(By.CLASS_NAME,"mt").text
                 bauthor = item.find_element(By.ID,"productModelText").text
@@ -55,7 +57,14 @@ while not isNextDisabled:
             except:
                 pass    
             
-            add_new_book(bname, bauthor, bpublisher, float(bprice))
+            data = {
+                "name": bname,
+                "author": bauthor,
+                "publisher": bpublisher,
+                "price": float(bprice)
+            }   
+
+            create_book(data)
 
             print("BookName:" + bname)
             print("Publisher:" + bpublisher)
@@ -112,7 +121,14 @@ for i in range(8):
             except: 
                 pass
             
-            add_new_book(bname, bauthor, bpublisher, float(bprice))
+            data = {
+                "name": bname,
+                "author": bauthor,
+                "publisher": bpublisher,
+                "price": float(bprice)
+            }   
+
+            create_book(data)
 
             print("BookName:" + bname)
             print("Publisher:" + bpublisher)
